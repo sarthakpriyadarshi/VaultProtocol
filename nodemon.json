@@ -1,0 +1,29 @@
+{
+  "watch": [
+    "app/**/*.js",
+    "server.js",
+    "app.js",
+    "config/**/*.js",
+    "utils/**/*.js",
+    "contracts/**/*.sol",
+    "scripts/**/*.js"
+  ],
+  "ext": "js,json,sol",
+  "ignore": [
+    "node_modules/**/*",
+    "artifacts/**/*",
+    "cache/**/*",
+    "test/**/*",
+    "coverage/**/*",
+    "quorum-test-network/**/*",
+    ".env"
+  ],
+  "exec": "node server.js",
+  "env": {
+    "NODE_ENV": "development",
+    "FILE_ENCRYPTION_KEY": "9c69b7c1996a8cbb37bd218fc147a0e275444aeb83dc30d8d2992a42321395f6"
+  },
+  "delay": 1000,
+  "verbose": true,
+  "legacyWatch": true
+}

@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VAULT Protocol Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#eff6ff",
+                100: "#dbeafe",
+                200: "#bfdbfe",
+                300: "#93c5fd",
+                400: "#60a5fa",
+                500: "#3b82f6",
+                600: "#2563eb",
+                700: "#1d4ed8",
+                800: "#1e40af",
+                900: "#1e3a8a",
+              },
+              vault: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                200: "#bae6fd",
+                300: "#7dd3fc",
+                400: "#38bdf8",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                800: "#075985",
+                900: "#0c4a6e",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              mono: ["JetBrains Mono", "Consolas", "monospace"],
+            },
+            animation: {
+              "fade-in": "fadeIn 0.5s ease-in-out",
+              "slide-up": "slideUp 0.3s ease-out",
+              "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+            },
+            keyframes: {
+              fadeIn: {
+                "0%": { opacity: "0" },
+                "100%": { opacity: "1" },
+              },
+              slideUp: {
+                "0%": { transform: "translateY(10px)", opacity: "0" },
+                "100%": { transform: "translateY(0)", opacity: "1" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* OKLCH Color System - Light Theme (matching /api/docs) */
+      :root {
+        --background: oklch(1 0 0);
+        --foreground: oklch(0.145 0 0);
+        --card: oklch(1 0 0);
+        --card-foreground: oklch(0.145 0 0);
+        --popover: oklch(1 0 0);
+        --popover-foreground: oklch(0.145 0 0);
+        --primary: oklch(0.205 0 0);
+        --primary-foreground: oklch(0.985 0 0);
+        --secondary: oklch(0.97 0 0);
+        --secondary-foreground: oklch(0.205 0 0);
+        --muted: oklch(0.97 0 0);
+        --muted-foreground: oklch(0.556 0 0);
+        --accent: oklch(0.97 0 0);
+        --accent-foreground: oklch(0.205 0 0);
+        --destructive: oklch(0.577 0.245 27.325);
+        --destructive-foreground: oklch(0.577 0.245 27.325);
+        --border: oklch(0.922 0 0);
+        --input: oklch(0.922 0 0);
+        --ring: oklch(0.708 0 0);
+        --radius: 0.625rem;
+      }
+
+      /* Base styles */
+      * {
+        border-color: hsl(var(--border));
+        outline-color: hsl(var(--ring) / 0.5);
+      }
+
+      body {
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+        font-family: 'Inter', system-ui, sans-serif;
+      }
+
+      .gradient-text {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .gradient-glow {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+        box-shadow: 0 0 40px rgba(96, 165, 250, 0.3);
+      }
+
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+
+      .card-hover:hover {
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 0 0 1px var(--primary), 0 0 0 1px var(--primary);
+      }
+
+      .glass-effect {
+        background: var(--card);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--border);
+      }
+
+      .smooth-gradient {
+        background: linear-gradient(135deg, rgba(96, 165, 250, 0.1) 0%, rgba(165, 142, 251, 0.1) 100%);
+      }
+
+      /* Button Styles - Matching shadcn/ui button.tsx */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+        border-radius: calc(var(--radius) - 2px);
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        text-decoration: none;
+        outline: none;
+        border: 1px solid transparent;
+        width: 100%;
+        height: 2.25rem; /* h-9 */
+        padding: 0.5rem 1rem;
+        position: relative;
+      }
+
+      .btn:disabled {
+        pointer-events: none;
+        opacity: 0.5;
+      }
+
+      .btn:focus-visible {
+        border-color: hsl(var(--ring));
+        box-shadow: 0 0 0 3px hsl(var(--ring) / 0.5);
+      }
+
+      .btn svg {
+        pointer-events: none;
+        width: 1rem;
+        height: 1rem;
+        flex-shrink: 0;
+      }
+
+      /* Default variant - Blue */
+      .btn-primary {
+        background: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+      }
+
+      .btn-primary:hover {
+        background: #2563eb;
+        color: white;
+      }
+
+      /* Destructive variant - Red */
+      .btn-destructive {
+        background: #ef4444;
+        color: white;
+        border-color: #ef4444;
+      }
+
+      .btn-destructive:hover {
+        background: #dc2626;
+        color: white;
+      }
+
+      .btn-destructive:focus-visible {
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+      }
+
+      /* Outline variant - Blue */
+      .btn-outline {
+        background: #dbeafe;
+        color: #1e40af;
+        border-color: #3b82f6;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      }
+
+      .btn-outline:hover {
+        background: #3b82f6;
+        color: white;
+      }
+
+      /* Secondary variant - Blue */
+      .btn-secondary {
+        background: #dbeafe;
+        color: #1e40af;
+        border-color: #3b82f6;
+      }
+
+      .btn-secondary:hover {
+        background: #3b82f6;
+        color: white;
+      }
+
+      /* Ghost variant - Blue */
+      .btn-ghost {
+        background: #dbeafe;
+        color: #1e40af;
+        border-color: #3b82f6;
+      }
+
+      .btn-ghost:hover {
+        background: #3b82f6;
+        color: white;
+      }
+
+      /* Link variant */
+      .btn-link {
+        background: transparent;
+        color: hsl(var(--primary));
+        text-decoration: underline;
+        text-underline-offset: 4px;
+        border-color: transparent;
+        padding: 0;
+        height: auto;
+      }
+
+      .btn-link:hover {
+        text-decoration: underline;
+      }
+
+      /* Size variants */
+      .btn-sm {
+        height: 2rem; /* h-8 */
+        border-radius: calc(var(--radius) - 2px);
+        gap: 0.375rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+      }
+
+      .btn-sm svg {
+        width: 0.875rem;
+        height: 0.875rem;
+      }
+
+      .btn-lg {
+        height: 2.5rem; /* h-10 */
+        border-radius: calc(var(--radius) - 2px);
+        padding: 0.5rem 1.5rem;
+        font-size: 0.875rem;
+      }
+
+      .btn-lg svg {
+        width: 1rem;
+        height: 1rem;
+      }
+
+      .btn-icon {
+        width: 2.25rem;
+        height: 2.25rem;
+        padding: 0;
+      }
+
+      .btn-icon-sm {
+        width: 2rem;
+        height: 2rem;
+        padding: 0;
+      }
+
+      .btn-icon-lg {
+        width: 2.5rem;
+        height: 2.5rem;
+        padding: 0;
+      }
+
+      .input-field {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        background: white;
+        color: #374151;
+        font-size: 0.875rem;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      }
+
+      .input-field:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .input-field:hover {
+        border-color: #9ca3af;
+      }
+
+      .textarea-field {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        background: white;
+        color: #374151;
+        font-size: 0.75rem;
+        font-family: 'JetBrains Mono', 'Consolas', monospace;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        resize: vertical;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      }
+
+      .textarea-field:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .textarea-field:hover {
+        border-color: #9ca3af;
+      }
+
+      .output {
+        background: #f8fafc;
+        color: #374151;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        font-family: "JetBrains Mono", "Consolas", monospace;
+        font-size: 0.75rem;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        max-height: 12rem;
+        overflow-y: auto;
+        overflow-x: hidden;
+        margin-top: 1rem;
+        display: none;
+        opacity: 0.9;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .status {
+        padding: 1rem;
+        border-radius: var(--radius);
+        margin: 1rem 0;
+        font-weight: 500;
+        animation: slideUp 0.3s ease-out;
+        border: 1px solid transparent;
+      }
+
+      .status.success {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border-color: rgba(16, 185, 129, 0.2);
+      }
+
+      .status.error {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border-color: rgba(239, 68, 68, 0.2);
+      }
+
+      .status.info {
+        background: rgba(96, 165, 250, 0.1);
+        color: #60a5fa;
+        border-color: rgba(96, 165, 250, 0.2);
+      }
+
+      .card {
+        background: white;
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .card:hover {
+        border-color: hsl(var(--primary));
+        box-shadow: 0 0 0 1px hsl(var(--primary));
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .card-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid;
+      }
+
+      .card-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: hsl(var(--foreground));
+        margin: 0;
+      }
+
+      .card-description {
+        font-size: 0.875rem;
+        color: hsl(var(--muted-foreground));
+        margin: 0;
+      }
+
+      .card-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        height: 100%;
+      }
+
+      .card-content .space-y-4 {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .card-content .space-y-4 > *:not(:last-child) {
+        flex: 1;
+      }
+
+      .card-content button {
+        margin-top: auto;
+        align-self: stretch;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .form-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: hsl(var(--foreground));
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: calc(var(--radius) - 2px);
+        border: 1px solid hsl(var(--border));
+        background: hsl(var(--secondary));
+        color: hsl(var(--secondary-foreground));
+        padding: 0.25rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        margin: 0.125rem;
+      }
+
+      .badge-primary {
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+        border-color: hsl(var(--primary));
+      }
+
+      .badge-destructive {
+        background: hsl(var(--destructive));
+        color: hsl(var(--destructive-foreground));
+        border-color: hsl(var(--destructive));
+      }
+
+      /* Custom animations */
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-fade-in-up {
+        animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* Modern File Input Styling */
+      .file-input-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+      }
+
+      .file-input-wrapper input[type="file"] {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+
+      .file-input-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        border: 2px dashed #d1d5db;
+        border-radius: 0.5rem;
+        background: white;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        min-height: 2.5rem;
+        width: 100%;
+        box-sizing: border-box;
+        flex-wrap: wrap;
+        text-align: center;
+      }
+
+      .file-input-label:hover {
+        border-color: #3b82f6;
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      .file-input-label.has-file {
+        border-color: #3b82f6;
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      .file-input-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        flex-shrink: 0;
+      }
+
+      .file-input-text {
+        font-size: 0.875rem;
+        font-weight: 500;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        max-width: 100%;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <!-- Background Effects -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl opacity-20 animate-pulse"></div>
+      <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl opacity-20 animate-pulse" style="animation-delay: 1s;"></div>
+      </div>
+
+    <!-- Header -->
+    <header class="bg-white/95 backdrop-blur-xl sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+              </svg>
+      </div>
+            <div>
+              <h1 class="text-2xl font-bold text-slate-900">
+                VAULT Protocol
+              </h1>
+              <p class="text-xs text-slate-600 tracking-wide">Certificate Management System</p>
+            </div>
+          </div>
+          <div class="hidden md:flex items-center gap-3 px-4 py-2 rounded-lg bg-white/50 border border-slate-200">
+            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            <span class="text-xs text-slate-600 font-medium">System Online</span>
+          </div>
+        </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+      <!-- Grid Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 items-stretch">
+        <div class="card glass-effect card-hover group overflow-hidden relative">
+          <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          
+          <div class="card-header relative">
+            <div class="card-icon bg-gradient-to-br from-green-500/30 to-green-600/20 border-green-500/30">
+              <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+        </div>
+            <div>
+              <h3 class="card-title text-lg">System Health</h3>
+              <p class="card-description">Check API status</p>
+            </div>
+          </div>
+          <div class="card-content relative">
+            <button onclick="checkHealth()" class="btn btn-primary">
+              Check Status
+            </button>
+            <div id="health-output" class="output"></div>
+        </div>
+      </div>
+
+        <div class="card glass-effect card-hover group overflow-hidden relative">
+          <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          
+          <div class="card-header relative">
+            <div class="card-icon bg-gradient-to-br from-pink-500/30 to-pink-600/20 border-pink-500/30">
+              <svg class="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+        </div>
+            <div>
+              <h3 class="card-title text-lg">Run Full Demo</h3>
+              <p class="card-description">Execute all operations</p>
+            </div>
+          </div>
+          <div class="card-content relative">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-foreground mb-2">Demo File</label>
+                <div class="file-input-wrapper">
+                  <input type="file" id="demoFile" accept=".pdf,.png,.jpg,.jpeg,.txt,.html,.json" class="hidden" />
+                  <label for="demoFile" id="demoFileLabel" class="file-input-label">
+                    <svg class="file-input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    <span class="file-input-text">Choose file for demo</span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-foreground mb-2">Email Address</label>
+                <input type="email" id="demoEmail" placeholder="demo@example.com" class="input-field" value="demo@example.com" />
+              </div>
+            </div>
+            <p class="text-sm text-muted-foreground mb-4">
+              Run a complete demonstration of all VAULT Protocol features in sequence.
+            </p>
+            <button onclick="runFullDemo()" class="btn btn-primary">
+              Start Demo
+            </button>
+            <div id="demo-output" class="output"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Operations Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+        <!-- Issue Certificate -->
+        <div class="card glass-effect card-hover group overflow-hidden relative">
+          <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          
+          <div class="card-header relative">
+            <div class="card-icon bg-gradient-to-br from-blue-500/30 to-blue-600/20 border-blue-500/30">
+              <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+        </div>
+            <div>
+              <h3 class="card-title text-lg">Issue Certificate</h3>
+              <p class="card-description">Upload and issue a new certificate</p>
+        </div>
+          </div>
+          <div class="card-content relative">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-foreground mb-2">Email Address</label>
+                <input type="email" id="email" placeholder="user@example.com" class="input-field" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-foreground mb-2">Certificate File</label>
+                <div class="file-input-wrapper">
+                  <input type="file" id="certificateFile" accept=".pdf,.png,.jpg,.jpeg,.txt,.html,.json" class="hidden" />
+                  <label for="certificateFile" id="certificateFileLabel" class="file-input-label">
+                    <svg class="file-input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    <span class="file-input-text">Choose file or drag and drop</span>
+                  </label>
+                </div>
+              </div>
+              <button onclick="issueCertificate()" class="btn btn-primary">
+                Issue Certificate
+              </button>
+            </div>
+            <div id="issue-output" class="output"></div>
+        </div>
+      </div>
+
+        <!-- Verify Certificate -->
+        <div class="card glass-effect card-hover group overflow-hidden relative">
+          <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          
+          <div class="card-header relative">
+            <div class="card-icon bg-gradient-to-br from-purple-500/30 to-purple-600/20 border-purple-500/30">
+              <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+              </svg>
+        </div>
+            <div>
+              <h3 class="card-title text-lg">Verify Certificate</h3>
+              <p class="card-description">Verify certificate authenticity</p>
+            </div>
+          </div>
+          <div class="card-content relative">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-foreground mb-2">File ID (FID)</label>
+                <input type="text" id="verifyFid" placeholder="cert_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" class="input-field" />
+              </div>
+              <button onclick="verifyCertificate()" class="btn btn-primary">
+                Verify Certificate
+              </button>
+        </div>
+            <div id="verify-output" class="output"></div>
+        </div>
+      </div>
+
+        <!-- Get Certificate -->
+        <div class="card glass-effect card-hover group overflow-hidden relative">
+          <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          
+          <div class="card-header relative">
+            <div class="card-icon bg-gradient-to-br from-indigo-500/30 to-indigo-600/20 border-indigo-500/30">
+              <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+        </div>
+            <div>
+              <h3 class="card-title text-lg">Get Certificate</h3>
+              <p class="card-description">Retrieve certificate details</p>
+        </div>
+          </div>
+          <div class="card-content relative">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-foreground mb-2">File ID (FID)</label>
+                <input type="text" id="getFid" placeholder="cert_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" class="input-field" />
+              </div>
+              <button onclick="getCertificate()" class="btn btn-outline">
+                Get Certificate
+              </button>
+            </div>
+            <div id="get-output" class="output"></div>
+          </div>
+      </div>
+
+        <!-- Download Certificate -->
+        <div class="card glass-effect card-hover group overflow-hidden relative">
+          <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          
+          <div class="card-header relative">
+            <div class="card-icon bg-gradient-to-br from-emerald-500/30 to-emerald-600/20 border-emerald-500/30">
+              <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+        </div>
+            <div>
+              <h3 class="card-title text-lg">Download Certificate</h3>
+              <p class="card-description">Download certificate file</p>
+            </div>
+          </div>
+          <div class="card-content relative">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-foreground mb-2">File ID (FID)</label>
+                <input type="text" id="downloadFid" placeholder="cert_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" class="input-field" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-foreground mb-2">Content ID (CID)</label>
+                <input type="text" id="downloadCid" placeholder="QmXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" class="input-field" />
+              </div>
+              <button onclick="downloadCertificate()" class="btn btn-secondary">
+                Download Certificate
+              </button>
+            </div>
+            <div id="download-output" class="output"></div>
+        </div>
+      </div>
+
+        <!-- Vault URL Scheme -->
+        <div class="card glass-effect card-hover group overflow-hidden relative">
+          <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          
+          <div class="card-header relative">
+            <div class="card-icon bg-gradient-to-br from-orange-500/30 to-orange-600/20 border-orange-500/30">
+              <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+              </svg>
+        </div>
+            <div>
+              <h3 class="card-title text-lg">Vault URL Scheme</h3>
+              <p class="card-description">Test vault:// protocol</p>
+            </div>
+          </div>
+          <div class="card-content relative">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-foreground mb-2">Vault URL</label>
+                <input type="text" id="vaultUrl" placeholder="vault://cert_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" class="input-field" />
+              </div>
+              <button onclick="testVaultScheme()" class="btn btn-ghost">
+                Test Vault URL
+              </button>
+            </div>
+            <div id="vault-output" class="output"></div>
+        </div>
+      </div>
+
+        <!-- Update Certificate -->
+        <div class="card glass-effect card-hover group overflow-hidden relative">
+          <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          
+          <div class="card-header relative">
+            <div class="card-icon bg-gradient-to-br from-cyan-500/30 to-cyan-600/20 border-cyan-500/30">
+              <svg class="w-5 h-5 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+        </div>
+            <div>
+              <h3 class="card-title text-lg">Update Certificate</h3>
+              <p class="card-description">Update existing certificate</p>
+            </div>
+          </div>
+          <div class="card-content relative">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-foreground mb-2">File ID (FID)</label>
+                <input type="text" id="updateFid" placeholder="cert_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" class="input-field" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-foreground mb-2">New Certificate File</label>
+                <div class="file-input-wrapper">
+                  <input type="file" id="updateFile" accept=".pdf,.png,.jpg,.jpeg,.txt,.html,.json" class="hidden" />
+                  <label for="updateFile" id="updateFileLabel" class="file-input-label">
+                    <svg class="file-input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    <span class="file-input-text">Choose file or drag and drop</span>
+                  </label>
+                </div>
+              </div>
+              <button onclick="updateCertificate()" class="btn btn-primary btn-sm">
+                Update Certificate
+              </button>
+            </div>
+            <div id="update-output" class="output"></div>
+      </div>
+      </div>
+
+        <!-- Delete Certificate -->
+        <div class="card glass-effect card-hover group overflow-hidden relative">
+          <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          
+          <div class="card-header relative">
+            <div class="card-icon bg-gradient-to-br from-red-500/30 to-red-600/20 border-red-500/30">
+              <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+      </div>
+            <div>
+              <h3 class="card-title text-lg">Delete Certificate</h3>
+              <p class="card-description">Delete certificate permanently</p>
+    </div>
+          </div>
+          <div class="card-content relative">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-foreground mb-2">File ID (FID)</label>
+                <input type="text" id="deleteFid" placeholder="cert_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" class="input-field" />
+              </div>
+              <button onclick="deleteCertificate()" class="btn btn-destructive btn-lg">
+                Delete Certificate
+              </button>
+            </div>
+            <div id="delete-output" class="output"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white/95 backdrop-blur-xl mt-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-slate-900">VAULT Protocol</p>
+              <p class="text-xs text-slate-600">Certificate Management System</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 text-xs text-slate-600">
+            <span>Built with Express.js</span>
+            <span>•</span>
+            <span>Quorum Blockchain</span>
+            <span>•</span>
+            <span>IPFS Storage</span>
+            <span>•</span>
+            <span>AES-256-GCM Encryption</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    </div>
+
+
+    <script>
+      const API_BASE_URL = "http://localhost:3001/api";
+      const VAULT_BASE_URL = "http://localhost:3001/api/vault";
+      let currentCertificate = null;
+
+      function updateFileLabel(inputId, labelId) {
+        const input = document.getElementById(inputId);
+        const label = document.getElementById(labelId);
+        const textSpan = label.querySelector('.file-input-text');
+        
+        if (input.files && input.files[0]) {
+          label.classList.add('has-file');
+          textSpan.textContent = input.files[0].name;
+        } else {
+          label.classList.remove('has-file');
+          textSpan.textContent = 'Choose file or drag and drop';
+        }
+      }
+
+      function showOutput(elementId, content, isError = false) {
+        const output = document.getElementById(elementId);
+        output.style.display = "block";
+        output.textContent = content;
+        output.className = isError ? "output error" : "output";
+      }
+
+      function showStatus(message, type = "info") {
+        const status = document.createElement("div");
+        status.className = `status ${type}`;
+        status.textContent = message;
+        document.body.appendChild(status);
+        setTimeout(() => status.remove(), 5000);
+      }
+
+      async function makeRequest(url, options = {}) {
+        try {
+          const response = await fetch(url, {
+            headers: {
+              "Content-Type": "application/json",
+              ...options.headers,
+            },
+            ...options,
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          return await response.json();
+        } catch (error) {
+          throw new Error(`Request failed: ${error.message}`);
+        }
+      }
+
+      async function checkHealth() {
+        try {
+          const health = await makeRequest(`${API_BASE_URL}/health`);
+          showOutput("health-output", JSON.stringify(health, null, 2));
+          showStatus("✅ Health check completed successfully", "success");
+        } catch (error) {
+          showOutput("health-output", `Error: ${error.message}`, true);
+          showStatus("❌ Health check failed", "error");
+        }
+      }
+
+      async function issueCertificate() {
+        try {
+          const email = document.getElementById("email").value;
+          const fileInput = document.getElementById("certificateFile");
+          
+          if (!email) {
+            throw new Error("Email address is required");
+          }
+          
+          if (!fileInput.files[0]) {
+            throw new Error("Certificate file is required");
+          }
+
+          const formData = new FormData();
+          formData.append("file", fileInput.files[0]);
+          formData.append("email", email);
+          formData.append("isPrivate", "false");
+
+          const response = await fetch(`${API_BASE_URL}/certificates/issue`, {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const result = await response.json();
+          currentCertificate = result.data;
+
+          // Update form fields
+          document.getElementById("verifyFid").value = result.data.fid;
+          document.getElementById("getFid").value = result.data.fid;
+          document.getElementById("downloadFid").value = result.data.fid;
+          document.getElementById("downloadCid").value = result.data.cid;
+          document.getElementById("vaultUrl").value = `vault://${result.data.fid}/${result.data.cid}`;
+          document.getElementById("updateFid").value = result.data.fid;
+          document.getElementById("deleteFid").value = result.data.fid;
+
+          showOutput("issue-output", JSON.stringify(result, null, 2));
+          showStatus("✅ Certificate issued successfully", "success");
+        } catch (error) {
+          showOutput("issue-output", `Error: ${error.message}`, true);
+          showStatus("❌ Certificate issuance failed", "error");
+        }
+      }
+
+      async function verifyCertificate() {
+        try {
+          const fid = document.getElementById("verifyFid").value;
+          const email = document.getElementById("email").value;
+
+          if (!fid) {
+            throw new Error("File ID (FID) is required");
+          }
+          
+          if (!email) {
+            throw new Error("Email address is required");
+          }
+
+          const result = await makeRequest(
+            `${API_BASE_URL}/certificates/verify`,
+            {
+              method: "POST",
+              body: JSON.stringify({ fid, email }),
+            }
+          );
+
+          showOutput("verify-output", JSON.stringify(result, null, 2));
+          showStatus("✅ Certificate verification completed", "success");
+        } catch (error) {
+          showOutput("verify-output", `Error: ${error.message}`, true);
+          showStatus("❌ Certificate verification failed", "error");
+        }
+      }
+
+      async function getCertificate() {
+        try {
+          const fid = document.getElementById("getFid").value;
+
+          const result = await makeRequest(
+            `${API_BASE_URL}/certificates/${fid}`
+          );
+
+          showOutput("get-output", JSON.stringify(result, null, 2));
+          showStatus("✅ Certificate retrieved successfully", "success");
+        } catch (error) {
+          showOutput("get-output", `Error: ${error.message}`, true);
+          showStatus("❌ Certificate retrieval failed", "error");
+        }
+      }
+
+      async function downloadCertificate() {
+        try {
+          const fid = document.getElementById("downloadFid").value;
+          const cid = document.getElementById("downloadCid").value;
+
+          const response = await fetch(
+            `${API_BASE_URL}/certificates/${fid}/download/${cid}`
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          // Get filename from Content-Disposition header
+          const contentDisposition = response.headers.get(
+            "Content-Disposition"
+          );
+          const filename = contentDisposition
+            ? contentDisposition.split("filename=")[1]?.replace(/"/g, "")
+            : "certificate.txt";
+
+          // Create blob and download
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+
+          showOutput(
+            "download-output",
+            `File downloaded successfully: ${filename}\nSize: ${blob.size} bytes`
+          );
+          showStatus("✅ Certificate downloaded successfully", "success");
+        } catch (error) {
+          showOutput("download-output", `Error: ${error.message}`, true);
+          showStatus("❌ Certificate download failed", "error");
+        }
+      }
+
+      async function testVaultScheme() {
+        try {
+          const vaultUrl = document.getElementById("vaultUrl").value;
+          
+          if (!vaultUrl) {
+            throw new Error("Vault URL is required");
+          }
+
+          // Extract FID and CID from vault:// URL
+          // Expected format: vault://fid/cid or vault://fid
+          const vaultMatch = vaultUrl.match(/^vault:\/\/([^\/]+)(?:\/(.+))?$/);
+          
+          if (!vaultMatch) {
+            throw new Error("Invalid vault:// URL format. Expected: vault://fid/cid");
+          }
+          
+          const fid = vaultMatch[1];
+          const cid = vaultMatch[2];
+          
+          if (!cid) {
+            throw new Error("CID is required for vault:// URL. Format: vault://fid/cid");
+          }
+          
+          const result = await makeRequest(`${VAULT_BASE_URL}/${fid}/${cid}`, {
+              headers: {
+              "X-Vault-Scheme": vaultUrl,
+              },
+          });
+
+          showOutput("vault-output", JSON.stringify(result, null, 2));
+          showStatus("✅ Vault URL scheme test completed", "success");
+        } catch (error) {
+          showOutput("vault-output", `Error: ${error.message}`, true);
+          showStatus("❌ Vault URL scheme test failed", "error");
+        }
+      }
+
+      async function updateCertificate() {
+        try {
+          const fid = document.getElementById("updateFid").value;
+          const fileInput = document.getElementById("updateFile");
+          
+          if (!fid) {
+            throw new Error("File ID (FID) is required");
+          }
+          
+          if (!fileInput.files[0]) {
+            throw new Error("New certificate file is required");
+          }
+
+          const formData = new FormData();
+          formData.append("file", fileInput.files[0]);
+
+          const response = await fetch(`${API_BASE_URL}/certificates/${fid}`, {
+            method: "PUT",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const result = await response.json();
+
+          // Update CID field
+          document.getElementById("downloadCid").value = result.data.newCid;
+
+          showOutput("update-output", JSON.stringify(result, null, 2));
+          showStatus("✅ Certificate updated successfully", "success");
+        } catch (error) {
+          showOutput("update-output", `Error: ${error.message}`, true);
+          showStatus("❌ Certificate update failed", "error");
+        }
+      }
+
+      async function deleteCertificate() {
+        try {
+          const fid = document.getElementById("deleteFid").value;
+          
+          if (!fid) {
+            throw new Error("File ID (FID) is required");
+          }
+
+          const result = await makeRequest(
+            `${API_BASE_URL}/certificates/${fid}`,
+            {
+              method: "DELETE",
+            }
+          );
+
+          showOutput("delete-output", JSON.stringify(result, null, 2));
+          showStatus("✅ Certificate deleted successfully", "success");
+        } catch (error) {
+          showOutput("delete-output", `Error: ${error.message}`, true);
+          showStatus("❌ Certificate deletion failed", "error");
+        }
+      }
+
+      async function runFullDemo() {
+        const output = document.getElementById("demo-output");
+        output.style.display = "block";
+        output.textContent = "VAULT Protocol Demonstration\n";
+        output.textContent += "============================\n\n";
+
+        try {
+          // Check health
+          output.textContent += "[1/7] System Health Check\n";
+          output.textContent += "------------------------\n";
+          const health = await makeRequest(`${API_BASE_URL}/health`);
+          output.textContent += `Status: ${health.status.toUpperCase()}\n`;
+          output.textContent += `IPFS: ${health.services.ipfs === 'connected' ? 'Connected' : 'Disconnected'}\n`;
+          output.textContent += `Blockchain: ${health.services.blockchain === 'connected' ? 'Connected' : 'Disconnected'}\n\n`;
+
+          // Issue certificate
+          output.textContent += "[2/7] Certificate Issuance\n";
+          output.textContent += "---------------------------\n";
+          const email = document.getElementById("demoEmail").value;
+          const fileInput = document.getElementById("demoFile");
+          
+          if (!email) {
+            throw new Error("Email address is required for demo");
+          }
+          
+          if (!fileInput.files[0]) {
+            throw new Error("Please select a file for the demo");
+          }
+
+          const formData = new FormData();
+          formData.append("file", fileInput.files[0]);
+          formData.append("email", email);
+          formData.append("isPrivate", "false");
+
+          const issueResponse = await fetch(
+            `${API_BASE_URL}/certificates/issue`,
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+
+          if (!issueResponse.ok) {
+            const errorText = await issueResponse.text();
+            throw new Error(`Issue failed: ${issueResponse.status} - ${errorText}`);
+          }
+
+          const issueResult = await issueResponse.json();
+          const { fid, cid } = issueResult.data;
+          output.textContent += `File ID (FID): ${fid}\n`;
+          output.textContent += `Content ID (CID): ${cid}\n`;
+          output.textContent += `File Name: ${fileInput.files[0].name}\n`;
+          output.textContent += `Email: ${email}\n`;
+          output.textContent += `Status: ISSUED\n\n`;
+
+          // Verify certificate
+          output.textContent += "[3/7] Certificate Verification\n";
+          output.textContent += "-----------------------------\n";
+          const verifyResult = await makeRequest(
+            `${API_BASE_URL}/certificates/verify`,
+            {
+              method: "POST",
+              body: JSON.stringify({ fid, email }),
+            }
+          );
+          output.textContent += `Verification Result: ${verifyResult.data.isValid ? 'VALID' : 'INVALID'}\n`;
+          output.textContent += `Email Match: ${verifyResult.data.emailMatch ? 'YES' : 'NO'}\n`;
+          output.textContent += `Certificate Active: ${verifyResult.data.isActive ? 'YES' : 'NO'}\n\n`;
+
+          // Get certificate
+          output.textContent += "[4/7] Certificate Retrieval\n";
+          output.textContent += "---------------------------\n";
+          const getResult = await makeRequest(
+            `${API_BASE_URL}/certificates/${fid}`
+          );
+          output.textContent += `FID: ${getResult.data.fid}\n`;
+          output.textContent += `CID: ${getResult.data.cid}\n`;
+          output.textContent += `Issuer: ${getResult.data.issuer}\n`;
+          output.textContent += `Email: ${getResult.data.email}\n`;
+          output.textContent += `Created: ${getResult.data.issueDate}\n`;
+          output.textContent += `Last Modified: ${getResult.data.lastModified}\n`;
+          output.textContent += `Status: ${getResult.data.isActive ? 'ACTIVE' : 'INACTIVE'}\n\n`;
+
+          // Test vault scheme
+          output.textContent += "[5/7] Vault URL Scheme Test\n";
+          output.textContent += "---------------------------\n";
+          try {
+            const vaultResponse = await fetch(`${VAULT_BASE_URL}/${fid}/${cid}`, {
+              headers: {
+                "X-Vault-Scheme": `vault://${fid}/${cid}`,
+              },
+            });
+            
+            if (vaultResponse.ok) {
+              const contentType = vaultResponse.headers.get('content-type');
+              if (contentType && contentType.includes('application/json')) {
+                const vaultResult = await vaultResponse.json();
+                output.textContent += `Vault URL Test: ${vaultResult.success ? 'SUCCESS' : 'FAILED'}\n`;
+              } else {
+                output.textContent += `Vault URL Test: SUCCESS\n`;
+                output.textContent += `Content Type: ${contentType}\n`;
+                output.textContent += `File Retrieved: YES\n`;
+              }
+            } else {
+              throw new Error(`Vault test failed: ${vaultResponse.status} ${vaultResponse.statusText}`);
+            }
+          } catch (vaultError) {
+            output.textContent += `Vault URL Test: FAILED\n`;
+            output.textContent += `Error: ${vaultError.message}\n`;
+          }
+          output.textContent += "\n";
+
+          // Update certificate
+          output.textContent += "[6/7] Certificate Update\n";
+          output.textContent += "-----------------------\n";
+          
+          // Use the same file but with a different name to simulate an update
+          const updateFormData = new FormData();
+          updateFormData.append("file", fileInput.files[0], `updated-${fileInput.files[0].name}`);
+
+          const updateResponse = await fetch(
+            `${API_BASE_URL}/certificates/${fid}`,
+            {
+              method: "PUT",
+              body: updateFormData,
+            }
+          );
+
+          if (!updateResponse.ok) {
+            throw new Error(`Update failed: ${updateResponse.statusText}`);
+          }
+
+          const updateResult = await updateResponse.json();
+          output.textContent += `Previous CID: ${cid}\n`;
+          output.textContent += `New CID: ${updateResult.data.newCid}\n`;
+          output.textContent += `Update Status: SUCCESS\n`;
+          output.textContent += `Transaction Hash: ${updateResult.data.transactionHash}\n\n`;
+
+          // Delete certificate
+          output.textContent += "[7/7] Certificate Deletion\n";
+          output.textContent += "-------------------------\n";
+          const deleteResult = await makeRequest(
+            `${API_BASE_URL}/certificates/${fid}`,
+            {
+              method: "DELETE",
+            }
+          );
+          output.textContent += `Deletion Status: SUCCESS\n`;
+          output.textContent += `Transaction Hash: ${deleteResult.data.transactionHash}\n`;
+          output.textContent += `Certificate Status: DELETED\n\n`;
+
+          output.textContent += "DEMONSTRATION SUMMARY\n";
+          output.textContent += "====================\n";
+          output.textContent += "All VAULT Protocol features have been successfully tested:\n";
+          output.textContent += "• Certificate Issuance with AES-256-GCM Encryption\n";
+          output.textContent += "• Certificate Verification and Validation\n";
+          output.textContent += "• Certificate Retrieval and Metadata Access\n";
+          output.textContent += "• Vault URL Scheme Processing\n";
+          output.textContent += "• Certificate Update with New File Version\n";
+          output.textContent += "• Certificate Deletion and Cleanup\n\n";
+          output.textContent += "Demonstration completed successfully.\n";
+          showStatus("Demonstration completed successfully", "success");
+        } catch (error) {
+          output.textContent += "\nDEMONSTRATION FAILED\n";
+          output.textContent += "===================\n";
+          output.textContent += `Error: ${error.message}\n`;
+          output.textContent += "Please check system configuration and try again.\n";
+          showStatus("Demonstration failed", "error");
+          console.error("Demo error:", error);
+        }
+      }
+
+      // Auto-check health on page load
+      window.onload = function () {
+        checkHealth();
+        
+        // Initialize file input event listeners
+        const certificateFileInput = document.getElementById('certificateFile');
+        const updateFileInput = document.getElementById('updateFile');
+        const demoFileInput = document.getElementById('demoFile');
+        
+        if (certificateFileInput) {
+          certificateFileInput.addEventListener('change', function() {
+            updateFileLabel('certificateFile', 'certificateFileLabel');
+          });
+        }
+        
+        if (updateFileInput) {
+          updateFileInput.addEventListener('change', function() {
+            updateFileLabel('updateFile', 'updateFileLabel');
+          });
+        }
+        
+        if (demoFileInput) {
+          demoFileInput.addEventListener('change', function() {
+            updateFileLabel('demoFile', 'demoFileLabel');
+          });
+        }
+      };
+    </script>
+  </body>
+</html>

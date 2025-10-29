@@ -1,0 +1,288 @@
+# VAULT Protocol - .gitignore
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
+.grunt
+
+# Bower dependency directory (https://bower.io/)
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+build/Release
+
+# Dependency directories
+jspm_packages/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# Logs
+logs
+*.log
+
+# Hardhat files
+cache/
+artifacts/
+typechain-types/
+
+# Hardhat network files
+.openzeppelin/
+
+# Solidity files
+*.sol.bak
+
+# Blockchain specific
+quorum-test-network/
+besu-data/
+tessera-data/
+
+# IPFS data
+.ipfs/
+ipfs-data/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Test files
+test-results/
+test-reports/
+
+# Build outputs
+build/
+dist/
+out/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Certificate files (keep example, ignore actual certificates)
+*.crt
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Large files that shouldn't be in git
+*.pdf.bak
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Local configuration files
+config.local.js
+config.local.json
+
+# Temporary test files
+test-*.txt
+test-*.json
+temp-*.pdf
+
+# Postman local files
+postman-local.json
+
+# Local development files
+local-*
+dev-*
+
+# Security sensitive files
+secrets/
+private-keys/
+*.secret
+
+# Generated documentation
+docs/generated/
+
+# Local scripts
+scripts/local/
+scripts/dev/
+
+# Performance monitoring
+.clinic/
+
+# ESLint cache
+.eslintcache
+
+# Prettier cache
+.prettiercache
+
+# Stylelint cache
+.stylelintcache
+
+# Jest cache
+.jest/
+
+# Cypress
+cypress/videos/
+cypress/screenshots/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Local environment overrides
+.env.override
+.env.local.override
+
+# Quorum specific
+quorum-logs/
+quorum-data/
+
+# Tessera specific
+tessera-logs/
+tessera-data/
+
+# Besu specific
+besu-logs/
+besu-data/
+
+# IPFS specific
+ipfs-logs/
+ipfs-data/
+
+# Contract deployment logs
+deployment-logs/
+deploy-*.log
+
+# Gas reports
+gas-report.txt
+gas-report.json
+
+# Contract verification
+contract-verification/
+
+# Local blockchain data
+blockchain-data/
+chain-data/
+
+# Node process files
+*.pid
+*.seed
+*.pid.lock
+
+# Optional: Keep important files
+!README.md
+!LICENSE
+!package.json
+!package-lock.json
+!yarn.lock
+!env.example
+!hardhat.config.js
+!nodemon.json
+!VAULT_Protocol_API.postman_collection.json
+!VAULT_Protocol_Environment.postman_environment.json
+!POSTMAN_README.md
+!setup-vault.sh
+!contracts/
+!app/
+!config/
+!utils/
+!public/
+!views/
+!scripts/
+!test/
+!VAULT_A_Scalable_Blockchain-Based_Protocol_for_Secure_Data_Access_and_Collaboration.pdf

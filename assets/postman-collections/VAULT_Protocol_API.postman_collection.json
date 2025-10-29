@@ -1,0 +1,777 @@
+{
+  "info": {
+    "_postman_id": "vault-protocol-api",
+    "name": "VAULT Protocol API",
+    "description": "Complete API collection for VAULT Protocol - Blockchain-based Certificate Management System with **Enterprise-Grade Encryption**\n\n## 🔐 **Encryption Features**\n\n- **AES-256-GCM Encryption**: All files are encrypted before IPFS storage\n- **Automatic Decryption**: Files are decrypted when retrieved via vault:// URLs\n- **Key Management**: Secure encryption key management via environment variables\n- **Metadata Preservation**: Original file information maintained through encryption\n\n## 📋 **Collection Structure**\n\n### 🏥 Health & Status\n- **Health Check** - Basic system health\n- **Detailed Health Check** - Comprehensive system metrics\n\n### 📜 Certificate Management\n- **Issue Certificate** - Upload file and create certificate (with encryption)\n- **Verify Certificate** - Validate certificate authenticity\n- **Get Certificate** - Retrieve certificate details\n- **Update Certificate** - Update certificate with new file (with encryption)\n- **Delete Certificate** - Remove certificate from system\n\n### 🔐 Vault Protocol\n- **Handle Vault Request** - Process vault:// URLs (with decryption)\n- **Get Vault Info** - Protocol information\n- **Browser Support** - Browser compatibility info\n\n### 📚 API Documentation\n- **API Overview** - Complete API documentation\n\n## 🚀 **Quick Start**\n\n1. **Import Collection**: Import `VAULT_Protocol_API.postman_collection.json`\n2. **Import Environment**: Import `VAULT_Protocol_Environment.postman_environment.json`\n3. **Start Services**: Ensure VAULT API (`npm run dev:encrypted`), IPFS (port 5001), and Quorum (port 8545) are running\n4. **Test Health**: Start with `GET /api/health`\n5. **Issue Certificate**: Upload file with `POST /api/certificates/issue`\n6. **Retrieve File**: Access via `GET /api/vault/{{fid}}/{{cid}}`\n\n## 🔧 **Environment Variables**\n\n| Variable | Default Value | Description |\n|----------|---------------|-------------|\n| `base_url` | `http://localhost:3001` | API base URL |\n| `fid` | `cert_xxx` | Sample File ID |\n| `cid` | `QmXxx` | Sample Content ID |\n| `test_email` | `test@example.com` | Test email address |\n| `file_encryption_key` | `9c69b7c1996a8cbb37bd218fc147a0e275444aeb83dc30d8d2992a42321395f6` | AES-256-GCM encryption key |\n| `encryption_algorithm` | `aes-256-gcm` | Encryption algorithm |\n\n## 🔐 **Encryption Process**\n\n1. **Upload**: File → AES-256-GCM Encrypt → Serialize → Upload to IPFS\n2. **Retrieval**: IPFS → Download → Deserialize → AES-256-GCM Decrypt → Return file\n\n## 📝 **Notes**\n\n- All files are encrypted using AES-256-GCM before IPFS storage\n- Files are automatically decrypted when retrieved via vault:// URLs\n- Encryption metadata is included in responses\n- Supports PNG, JPEG, PDF, TXT, HTML, JSON files\n- File uploads support up to 10MB\n- Gas limits optimized for Quorum blockchain",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "vault-protocol"
+  },
+  "item": [
+    {
+      "name": "Health & Status",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health"]
+            },
+            "description": "Check the health status of the VAULT Protocol system including IPFS and blockchain connections.\n\n**Returns:**\n- System health status\n- IPFS connection status\n- Blockchain connection status\n- Service availability\n- Timestamp\n\n**Use this endpoint first** to verify all services are running before testing other endpoints."
+          },
+          "response": [
+            {
+              "name": "Healthy System",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/health",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "health"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"status\": \"healthy\",\n  \"services\": {\n    \"ipfs\": \"connected\",\n    \"blockchain\": \"connected\"\n  },\n  \"timestamp\": \"2025-10-28T22:01:48.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Detailed Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health/detailed",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health", "detailed"]
+            },
+            "description": "Get detailed health information including system metrics and network details."
+          },
+          "response": [
+            {
+              "name": "Detailed Health Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/health/detailed",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "health", "detailed"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"status\": \"healthy\",\n  \"services\": {\n    \"ipfs\": {\n      \"status\": \"connected\",\n      \"url\": \"http://127.0.0.1:5001\"\n    },\n    \"blockchain\": {\n      \"status\": \"connected\",\n      \"network\": {\n        \"chainId\": 1337,\n        \"latestBlock\": 197\n      },\n      \"url\": \"http://127.0.0.1:8545\"\n    }\n  },\n  \"system\": {\n    \"uptime\": 3600,\n    \"memory\": {\n      \"rss\": 50000000,\n      \"heapTotal\": 20000000,\n      \"heapUsed\": 15000000\n    },\n    \"version\": \"v22.20.0\",\n    \"platform\": \"win32\"\n  },\n  \"timestamp\": \"2025-10-28T22:01:48.000Z\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Health monitoring and system status endpoints."
+    },
+    {
+      "name": "Certificate Management",
+      "item": [
+        {
+          "name": "Issue Certificate",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "Certificate file to upload (PNG, JPEG, PDF, TXT, HTML, JSON)"
+                },
+                {
+                  "key": "email",
+                  "value": "user@example.com",
+                  "type": "text",
+                  "description": "Email address of the certificate holder"
+                },
+                {
+                  "key": "isPrivate",
+                  "value": "false",
+                  "type": "text",
+                  "description": "Whether to use private transaction (true/false)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/certificates/issue",
+              "host": ["{{base_url}}"],
+              "path": ["api", "certificates", "issue"]
+            },
+            "description": "Issue a new certificate with **enterprise-grade file encryption**. Files are encrypted using AES-256-GCM before being stored on IPFS. The certificate metadata is stored on the blockchain.\n\n**Process:**\n1. File uploaded via form-data\n2. File encrypted using AES-256-GCM\n3. Encrypted file uploaded to IPFS\n4. Certificate metadata stored on blockchain\n5. FID and CID returned\n\n**Supported File Types:**\n- PNG, JPEG images\n- PDF documents\n- TXT, HTML, JSON text files\n\n**Response includes:**\n- FID (File ID) - persistent identifier\n- CID (Content ID) - IPFS hash for encrypted file\n- Transaction hash\n- Vault URL for file access\n- Gateway URL for direct IPFS access\n\n**Security:**\n- Files encrypted before IPFS storage\n- Unique IV generated per file\n- Filename used as authentication data\n- Authentication tags prevent tampering"
+          },
+          "response": [
+            {
+              "name": "Certificate Issued Successfully",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    },
+                    {
+                      "key": "email",
+                      "value": "user@example.com",
+                      "type": "text"
+                    },
+                    {
+                      "key": "isPrivate",
+                      "value": "false",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/certificates/issue",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "certificates", "issue"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Certificate issued successfully\",\n  \"data\": {\n    \"fid\": \"cert_06d62849-0f31-4b6e-9e86-6813025264a9\",\n    \"cid\": \"QmSeQ7BXVSFHDVXKHHdpQE51CotKdNu7YyVCCX5yu4Zrdt\",\n    \"email\": \"user@example.com\",\n    \"transactionHash\": \"0xec0bfab322f5a06e259602976293935b1c82e707a9897f3ce60d67e1e843adc3\",\n    \"vaultUrl\": \"vault://cert_06d62849-0f31-4b6e-9e86-6813025264a9/QmSeQ7BXVSFHDVXKHHdpQE51CotKdNu7YyVCCX5yu4Zrdt\",\n    \"gatewayUrl\": \"http://127.0.0.1:8080/ipfs/QmSeQ7BXVSFHDVXKHHdpQE51CotKdNu7YyVCCX5yu4Zrdt\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Verify Certificate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fid\": \"cert_06d62849-0f31-4b6e-9e86-6813025264a9\",\n  \"email\": \"user@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/certificates/verify",
+              "host": ["{{base_url}}"],
+              "path": ["api", "certificates", "verify"]
+            },
+            "description": "Verify the authenticity of a certificate using FID and email against the blockchain.\n\n**Process:**\n1. Validate FID and email parameters\n2. Retrieve certificate from blockchain\n3. Check certificate is active\n4. Verify email matches certificate\n5. Return verification result\n\n**Request Body:**\n```json\n{\n  \"fid\": \"cert_xxx\",\n  \"email\": \"user@example.com\"\n}\n```\n\n**Response includes:**\n- Verification status (true/false)\n- Certificate details if valid\n- Error message if invalid\n- Certificate metadata\n\n**Security:**\n- Blockchain-based verification\n- Immutable certificate records\n- Email ownership validation\n- Certificate status checking"
+          },
+          "response": [
+            {
+              "name": "Certificate Verified",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fid\": \"cert_06d62849-0f31-4b6e-9e86-6813025264a9\",\n  \"email\": \"user@example.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/certificates/verify",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "certificates", "verify"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Certificate verification successful\",\n  \"data\": {\n    \"fid\": \"cert_06d62849-0f31-4b6e-9e86-6813025264a9\",\n    \"email\": \"user@example.com\",\n    \"isValid\": true,\n    \"certificate\": {\n      \"fid\": \"cert_06d62849-0f31-4b6e-9e86-6813025264a9\",\n      \"cid\": \"QmSeQ7BXVSFHDVXKHHdpQE51CotKdNu7YyVCCX5yu4Zrdt\",\n      \"email\": \"user@example.com\",\n      \"issueDate\": 1761688908,\n      \"lastModified\": 1761688908,\n      \"issuer\": \"0xFE3B557E8Fb62b89F4916B721be55cEb828dBd73\",\n      \"isActive\": true\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Certificate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/certificates/{{fid}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "certificates", "{{fid}}"]
+            },
+            "description": "Retrieve comprehensive certificate details by FID from the blockchain.\n\n**Process:**\n1. Validate FID parameter\n2. Query certificate from blockchain\n3. Check certificate is active\n4. Return complete certificate metadata\n\n**Response includes:**\n- FID (File ID)\n- CID (Content ID for encrypted file)\n- Email address\n- Issue date and last modified\n- Issuer address\n- Active status\n- Vault URL for file access\n- Gateway URL for direct IPFS access\n\n**Use cases:**\n- Certificate lookup\n- Metadata verification\n- File access preparation\n- Certificate status checking\n\n**Security:**\n- Blockchain-based data retrieval\n- Immutable certificate records\n- Real-time status checking"
+          },
+          "response": [
+            {
+              "name": "Certificate Retrieved",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/certificates/cert_06d62849-0f31-4b6e-9e86-6813025264a9",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "api",
+                    "certificates",
+                    "cert_06d62849-0f31-4b6e-9e86-6813025264a9"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Certificate retrieved successfully\",\n  \"data\": {\n    \"fid\": \"cert_06d62849-0f31-4b6e-9e86-6813025264a9\",\n    \"cid\": \"QmSeQ7BXVSFHDVXKHHdpQE51CotKdNu7YyVCCX5yu4Zrdt\",\n    \"email\": \"user@example.com\",\n    \"issueDate\": \"2025-10-28T22:01:48.000Z\",\n    \"lastModified\": \"2025-10-28T22:01:48.000Z\",\n    \"issuer\": \"0xFE3B557E8Fb62b89F4916B721be55cEb828dBd73\",\n    \"isActive\": true,\n    \"vaultUrl\": \"vault://cert_06d62849-0f31-4b6e-9e86-6813025264a9/QmSeQ7BXVSFHDVXKHHdpQE51CotKdNu7YyVCCX5yu4Zrdt\",\n    \"gatewayUrl\": \"http://127.0.0.1:8080/ipfs/QmSeQ7BXVSFHDVXKHHdpQE51CotKdNu7YyVCCX5yu4Zrdt\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Certificate",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "New certificate file to replace the existing one"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/certificates/{{fid}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "certificates", "{{fid}}"]
+            },
+            "description": "Update an existing certificate with a **new encrypted file version**. The new file is encrypted and uploaded to IPFS, while maintaining the same FID.\n\n**Process:**\n1. Validate FID parameter\n2. Check certificate exists and is active\n3. Upload new file via form-data\n4. Encrypt new file using AES-256-GCM\n5. Upload encrypted file to IPFS\n6. Update certificate CID on blockchain\n7. Return new CID and transaction details\n\n**Request Body:**\n- `file`: New file to replace existing one\n\n**Response includes:**\n- FID (File ID - remains the same)\n- New CID (Content ID for new encrypted file)\n- Transaction hash\n- Updated vault URL\n- Gateway URL for new file\n\n**Security:**\n- New file encrypted before IPFS storage\n- Unique IV generated for new file\n- Filename used as authentication data\n- Blockchain transaction for CID update\n\n**Note:** The FID remains constant, but the CID changes to point to the new encrypted file version."
+          },
+          "response": [
+            {
+              "name": "Certificate Updated",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/certificates/cert_06d62849-0f31-4b6e-9e86-6813025264a9",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "api",
+                    "certificates",
+                    "cert_06d62849-0f31-4b6e-9e86-6813025264a9"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Certificate updated successfully\",\n  \"data\": {\n    \"fid\": \"cert_06d62849-0f31-4b6e-9e86-6813025264a9\",\n    \"oldCid\": \"QmSeQ7BXVSFHDVXKHHdpQE51CotKdNu7YyVCCX5yu4Zrdt\",\n    \"newCid\": \"QmNewHash1234567890abcdef\",\n    \"transactionHash\": \"0x1234567890abcdef\",\n    \"vaultUrl\": \"vault://cert_06d62849-0f31-4b6e-9e86-6813025264a9/QmNewHash1234567890abcdef\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Certificate",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/certificates/{{fid}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "certificates", "{{fid}}"]
+            },
+            "description": "Delete a certificate from both IPFS and blockchain, **removing the encrypted file and certificate metadata**.\n\n**Process:**\n1. Validate FID parameter\n2. Retrieve certificate details from blockchain\n3. Remove encrypted file from IPFS (unpin)\n4. Mark certificate as inactive on blockchain\n5. Return deletion confirmation\n\n**Response includes:**\n- FID (File ID)\n- CID (Content ID of removed file)\n- Transaction hash\n- Deletion confirmation\n\n**Security:**\n- Encrypted file removed from IPFS\n- Certificate marked as inactive (not deleted)\n- Blockchain transaction for status update\n- Immutable deletion record\n\n**Note:** Certificate metadata remains on blockchain but marked as inactive. The encrypted file is removed from IPFS."
+          },
+          "response": [
+            {
+              "name": "Certificate Deleted",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/certificates/cert_06d62849-0f31-4b6e-9e86-6813025264a9",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "api",
+                    "certificates",
+                    "cert_06d62849-0f31-4b6e-9e86-6813025264a9"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Certificate deleted successfully\",\n  \"data\": {\n    \"fid\": \"cert_06d62849-0f31-4b6e-9e86-6813025264a9\",\n    \"cid\": \"QmSeQ7BXVSFHDVXKHHdpQE51CotKdNu7YyVCCX5yu4Zrdt\",\n    \"transactionHash\": \"0x1234567890abcdef\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Download Certificate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/certificates/{{fid}}/download/{{cid}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "certificates", "{{fid}}", "download", "{{cid}}"]
+            },
+            "description": "Download the decrypted certificate file directly using FID and CID.\n\n**Process:**\n1. Validate FID and CID parameters\n2. Retrieve certificate details from blockchain\n3. Verify CID matches the certificate\n4. Download encrypted file from IPFS\n5. Decrypt file using AES-256-GCM\n6. Return decrypted file as attachment\n\n**Response:**\n- **Content-Type**: Based on file extension (PDF, PNG, JPEG, etc.)\n- **Content-Disposition**: `attachment; filename=\"original-filename\"`\n- **X-Vault-*** headers**: Metadata about the file\n- **File Content**: Decrypted file binary data\n\n**Security:**\n- File automatically decrypted before download\n- CID validation ensures file integrity\n- Original filename preserved\n- Encryption metadata included in headers\n\n**Use Cases:**\n- Direct file downloads\n- Certificate verification\n- File retrieval for external systems\n- Backup and archival purposes\n\n**Note:** This endpoint returns the actual file content, not JSON. Use appropriate tools to handle binary responses."
+          },
+          "response": [
+            {
+              "name": "File Downloaded Successfully",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/certificates/cert_da0f9efd-e8f4-46ed-9f7e-a916c5d360bc/download/QmcRWBtxm78gUqizeDZvfVze2gmFnHecfemBH6R3wdk7mU",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "api",
+                    "certificates",
+                    "cert_da0f9efd-e8f4-46ed-9f7e-a916c5d360bc",
+                    "download",
+                    "QmcRWBtxm78gUqizeDZvfVze2gmFnHecfemBH6R3wdk7mU"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/pdf"
+                },
+                {
+                  "key": "Content-Disposition",
+                  "value": "attachment; filename=\"VAULT_A_Scalable_Blockchain-Based_Protocol_for_Secure_Data_Access_and_Collaboration.pdf\""
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "557942"
+                },
+                {
+                  "key": "X-Vault-FID",
+                  "value": "cert_da0f9efd-e8f4-46ed-9f7e-a916c5d360bc"
+                },
+                {
+                  "key": "X-Vault-CID",
+                  "value": "QmcRWBtxm78gUqizeDZvfVze2gmFnHecfemBH6R3wdk7mU"
+                },
+                {
+                  "key": "X-Vault-File-Name",
+                  "value": "VAULT_A_Scalable_Blockchain-Based_Protocol_for_Secure_Data_Access_and_Collaboration.pdf"
+                },
+                {
+                  "key": "X-Vault-Original-Size",
+                  "value": "557942"
+                },
+                {
+                  "key": "X-Vault-Encrypted-Size",
+                  "value": "557942"
+                },
+                {
+                  "key": "X-Vault-Algorithm",
+                  "value": "aes-256-gcm"
+                },
+                {
+                  "key": "X-Vault-Timestamp",
+                  "value": "1761691127517"
+                }
+              ],
+              "cookie": [],
+              "body": "[Binary PDF Content - 557,942 bytes]"
+            },
+            {
+              "name": "Certificate Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/certificates/invalid-fid/download/invalid-cid",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "api",
+                    "certificates",
+                    "invalid-fid",
+                    "download",
+                    "invalid-cid"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Certificate not found or inactive\"\n}"
+            },
+            {
+              "name": "CID Mismatch",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/certificates/cert_da0f9efd-e8f4-46ed-9f7e-a916c5d360bc/download/wrong-cid",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "api",
+                    "certificates",
+                    "cert_da0f9efd-e8f4-46ed-9f7e-a916c5d360bc",
+                    "download",
+                    "wrong-cid"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"CID does not match certificate\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Certificate lifecycle management endpoints."
+    },
+    {
+      "name": "Vault Protocol",
+      "item": [
+        {
+          "name": "Handle Vault Request",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/vault/{{fid}}/{{cid}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vault", "{{fid}}", "{{cid}}"]
+            },
+            "description": "Handle vault:// URL scheme requests to retrieve and **automatically decrypt files**. Files are decrypted from IPFS and returned with comprehensive encryption metadata.\n\n**Process:**\n1. Validate vault:// URL format (fid/cid)\n2. Verify certificate exists and is active\n3. Retrieve encrypted file from IPFS\n4. Decrypt file using AES-256-GCM\n5. Return decrypted content with metadata\n\n**Response includes:**\n- Decrypted file content\n- Original file name\n- File sizes (original vs encrypted)\n- Encryption algorithm used\n- Timestamp of encryption\n- Certificate metadata\n- Vault URL and gateway URL\n\n**Security Headers:**\n- `X-Vault-File-Name`: Original filename\n- `X-Vault-Original-Size`: Original file size\n- `X-Vault-Encrypted-Size`: Encrypted file size\n- `X-Vault-Algorithm`: Encryption algorithm\n- `X-Vault-Timestamp`: Encryption timestamp\n\n**Security:**\n- Automatic decryption using stored encryption key\n- Authentication verification using filename\n- Integrity check via authentication tags\n- Certificate validation against blockchain"
+          },
+          "response": [
+            {
+              "name": "Vault File Retrieved",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/vault/cert_06d62849-0f31-4b6e-9e86-6813025264a9/QmSeQ7BXVSFHDVXKHHdpQE51CotKdNu7YyVCCX5yu4Zrdt",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "api",
+                    "vault",
+                    "cert_06d62849-0f31-4b6e-9e86-6813025264a9",
+                    "QmSeQ7BXVSFHDVXKHHdpQE51CotKdNu7YyVCCX5yu4Zrdt"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-Vault-FID",
+                  "value": "cert_06d62849-0f31-4b6e-9e86-6813025264a9"
+                },
+                {
+                  "key": "X-Vault-CID",
+                  "value": "QmSeQ7BXVSFHDVXKHHdpQE51CotKdNu7YyVCCX5yu4Zrdt"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Vault file retrieved successfully\",\n  \"data\": {\n    \"fid\": \"cert_06d62849-0f31-4b6e-9e86-6813025264a9\",\n    \"cid\": \"QmSeQ7BXVSFHDVXKHHdpQE51CotKdNu7YyVCCX5yu4Zrdt\",\n    \"fileData\": \"base64_encoded_file_content\",\n    \"fileName\": \"certificate.txt\",\n    \"fileSize\": 1024,\n    \"contentType\": \"text/plain\",\n    \"vaultUrl\": \"vault://cert_06d62849-0f31-4b6e-9e86-6813025264a9/QmSeQ7BXVSFHDVXKHHdpQE51CotKdNu7YyVCCX5yu4Zrdt\",\n    \"gatewayUrl\": \"http://127.0.0.1:8080/ipfs/QmSeQ7BXVSFHDVXKHHdpQE51CotKdNu7YyVCCX5yu4Zrdt\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Vault Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/vault/info",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vault", "info"]
+            },
+            "description": "Get information about the VAULT Protocol implementation."
+          },
+          "response": [
+            {
+              "name": "Vault Info",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/vault/info",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "vault", "info"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"protocol\": \"VAULT Protocol\",\n    \"version\": \"1.0.0\",\n    \"description\": \"Blockchain-based Certificate Management System\",\n    \"features\": [\n      \"Certificate Issuance\",\n      \"Certificate Verification\",\n      \"Certificate Updates\",\n      \"Certificate Deletion\",\n      \"Vault URL Scheme\",\n      \"IPFS Integration\",\n      \"Quorum Blockchain\"\n    ],\n    \"urlScheme\": \"vault://\",\n    \"blockchain\": \"Quorum\",\n    \"storage\": \"IPFS\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Browser Support",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/vault/browser-support",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vault", "browser-support"]
+            },
+            "description": "Get information about browser support for vault:// URLs."
+          },
+          "response": [
+            {
+              "name": "Browser Support Info",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/vault/browser-support",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "vault", "browser-support"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"vaultScheme\": \"vault://\",\n    \"description\": \"Custom URL scheme for VAULT Protocol\",\n    \"browserSupport\": {\n      \"chrome\": \"Requires extension\",\n      \"firefox\": \"Requires extension\",\n      \"safari\": \"Requires extension\",\n      \"edge\": \"Requires extension\"\n    },\n    \"fallback\": {\n      \"method\": \"HTTP headers\",\n      \"headers\": [\n        \"X-Vault-FID\",\n        \"X-Vault-CID\"\n      ]\n    },\n    \"example\": \"vault://cert_1234567890/QmHash1234567890\"\n  }\n}"
+            }
+          ]
+        }
+      ],
+      "description": "VAULT Protocol specific endpoints for custom URL scheme handling."
+    },
+    {
+      "name": "API Documentation",
+      "item": [
+        {
+          "name": "API Overview",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api",
+              "host": ["{{base_url}}"],
+              "path": ["api"]
+            },
+            "description": "Get API documentation and available endpoints."
+          },
+          "response": [
+            {
+              "name": "API Documentation",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api",
+                  "host": ["{{base_url}}"],
+                  "path": ["api"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"name\": \"VAULT Protocol API\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Blockchain-based Certificate Management System\",\n  \"endpoints\": {\n    \"certificates\": \"/api/certificates\",\n    \"vault\": \"/api/vault\",\n    \"health\": \"/api/health\"\n  },\n  \"documentation\": \"/api/docs\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "API documentation and overview endpoints."
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set default values for variables if not already set",
+          "if (!pm.environment.get('base_url')) {",
+          "    pm.environment.set('base_url', 'http://localhost:3001');",
+          "}",
+          "",
+          "if (!pm.environment.get('fid')) {",
+          "    pm.environment.set('fid', 'cert_06d62849-0f31-4b6e-9e86-6813025264a9');",
+          "}",
+          "",
+          "if (!pm.environment.get('cid')) {",
+          "    pm.environment.set('cid', 'QmSeQ7BXVSFHDVXKHHdpQE51CotKdNu7YyVCCX5yu4Zrdt');",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Common test script for all requests",
+          "pm.test('Response time is less than 5000ms', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "pm.test('Response has success field', function () {",
+          "    const jsonData = pm.response.json();",
+          "    pm.expect(jsonData).to.have.property('success');",
+          "});",
+          "",
+          "// Extract FID and CID from successful certificate operations",
+          "if (pm.response.code === 200) {",
+          "    const jsonData = pm.response.json();",
+          "    if (jsonData.success && jsonData.data) {",
+          "        if (jsonData.data.fid) {",
+          "            pm.environment.set('fid', jsonData.data.fid);",
+          "        }",
+          "        if (jsonData.data.cid) {",
+          "            pm.environment.set('cid', jsonData.data.cid);",
+          "        }",
+          "    }",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "fid",
+      "value": "cert_06d62849-0f31-4b6e-9e86-6813025264a9",
+      "type": "string"
+    },
+    {
+      "key": "cid",
+      "value": "QmSeQ7BXVSFHDVXKHHdpQE51CotKdNu7YyVCCX5yu4Zrdt",
+      "type": "string"
+    }
+  ]
+}
