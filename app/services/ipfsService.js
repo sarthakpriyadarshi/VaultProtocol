@@ -17,7 +17,7 @@ class IPFSService {
    */
   async uploadFile(fileData, fileName) {
     try {
-      console.log(`📤 Uploading file to IPFS: ${fileName}`);
+      console.log(`Uploading file to IPFS: ${fileName}`);
 
       // Convert to Buffer if needed
       const bufferData = Buffer.isBuffer(fileData)
@@ -25,7 +25,7 @@ class IPFSService {
         : Buffer.from(fileData);
 
       // Encrypt the file before uploading
-      console.log(`🔐 Encrypting file before IPFS upload...`);
+      console.log(`Encrypting file before IPFS upload...`);
       const encryptedData = this.encryptionService.encryptForIPFS(
         bufferData,
         fileName
@@ -57,7 +57,7 @@ class IPFSService {
       const lastLine = lines[lines.length - 1];
       const ipfsResult = JSON.parse(lastLine);
 
-      console.log(`✅ File uploaded successfully. CID: ${ipfsResult.Hash}`);
+      console.log(`File uploaded successfully. CID: ${ipfsResult.Hash}`);
       console.log(`   Original size: ${bufferData.length} bytes`);
       console.log(`   Encrypted size: ${encryptedData.length} bytes`);
       console.log(
@@ -97,7 +97,7 @@ class IPFSService {
    */
   async retrieveFile(cid) {
     try {
-      console.log(`📥 Retrieving file from IPFS: ${cid}`);
+      console.log(`Retrieving file from IPFS: ${cid}`);
 
       // Use IPFS HTTP API to get file
       const response = await fetch(`${this.apiUrl}/api/v0/cat?arg=${cid}`, {
@@ -111,16 +111,14 @@ class IPFSService {
       }
 
       const encryptedBuffer = Buffer.from(await response.arrayBuffer());
-      console.log(
-        `📦 Retrieved encrypted data: ${encryptedBuffer.length} bytes`
-      );
+      console.log(`Retrieved encrypted data: ${encryptedBuffer.length} bytes`);
 
       // Decrypt the file
-      console.log(`🔓 Decrypting file from IPFS...`);
+      console.log(`Decrypting file from IPFS...`);
       const decryptedData =
         this.encryptionService.decryptFromIPFS(encryptedBuffer);
 
-      console.log(`✅ File retrieved and decrypted successfully`);
+      console.log(`File retrieved and decrypted successfully`);
       console.log(`   Decrypted size: ${decryptedData.content.length} bytes`);
       console.log(`   Original size: ${decryptedData.originalSize} bytes`);
       console.log(`   File name: ${decryptedData.fileName}`);

@@ -45,7 +45,7 @@ class EncryptionService {
    */
   encryptFile(fileData, fileName) {
     try {
-      console.log(`🔐 Encrypting file: ${fileName}`);
+      console.log(`Encrypting file: ${fileName}`);
 
       // Generate random IV for each file
       const iv = crypto.randomBytes(16);
@@ -73,7 +73,7 @@ class EncryptionService {
         timestamp: Date.now(),
       };
 
-      console.log(`✅ File encrypted successfully`);
+      console.log(`File encrypted successfully`);
       console.log(`   Original size: ${fileData.length} bytes`);
       console.log(`   Encrypted size: ${encrypted.length} bytes`);
       console.log(`   Algorithm: ${this.algorithm}`);
@@ -92,7 +92,7 @@ class EncryptionService {
    */
   decryptFile(encryptedData) {
     try {
-      console.log(`🔓 Decrypting file: ${encryptedData.fileName}`);
+      console.log(`Decrypting file: ${encryptedData.fileName}`);
 
       // Create decipher
       const decipher = crypto.createDecipheriv(
@@ -107,7 +107,7 @@ class EncryptionService {
       let decrypted = decipher.update(encryptedData.encryptedContent);
       decrypted = Buffer.concat([decrypted, decipher.final()]);
 
-      console.log(`✅ File decrypted successfully`);
+      console.log(`File decrypted successfully`);
       console.log(`   Decrypted size: ${decrypted.length} bytes`);
       console.log(`   Original size: ${encryptedData.originalSize} bytes`);
 
@@ -210,14 +210,14 @@ class EncryptionService {
       const isCorrect = testData.equals(decryptedData);
 
       if (isCorrect) {
-        console.log("✅ Encryption test passed");
+        console.log("Encryption test passed");
         return true;
       } else {
-        console.log("❌ Encryption test failed");
+        console.log("Encryption test failed");
         return false;
       }
     } catch (error) {
-      console.error("❌ Encryption test error:", error);
+      console.error("Encryption test error:", error);
       return false;
     }
   }

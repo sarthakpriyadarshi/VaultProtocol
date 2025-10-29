@@ -80,6 +80,7 @@ class VaultApp {
 
     // Static files
     this.app.use(express.static("public"));
+    this.app.use("/assets", express.static("assets"));
 
     // Vault scheme middleware
     this.app.use(vaultSchemeHandler);
@@ -112,6 +113,11 @@ class VaultApp {
         documentation: "/api/docs",
       });
     });
+
+    // API Docs with UI
+    this.app.get("/docs", (req, res) => {
+      res.redirect("/api/docs");
+    });
   }
 
   setupErrorHandling() {
@@ -130,10 +136,12 @@ class VaultApp {
 
   start(port = process.env.PORT || 3000) {
     this.app.listen(port, () => {
-      console.log(`🚀 VAULT Protocol API server running on port ${port}`);
-      console.log(`📊 API Documentation: http://localhost:${port}/api`);
-      console.log(`🏥 Health Check: http://localhost:${port}/api/health`);
-      console.log(`🎮 Demo Interface: http://localhost:${port}/`);
+      console.log(`========VAULT PROTOCOL API SERVER STARTED========`);
+      console.log(`VAULT Protocol API server running on port ${port}`);
+      console.log(`API Documentation: http://localhost:${port}/api/docs`);
+      console.log(`API Docs UI: http://localhost:${port}/docs`);
+      console.log(`Health Check: http://localhost:${port}/api/health`);
+      console.log(`Demo Interface: http://localhost:${port}/`);
     });
   }
 }

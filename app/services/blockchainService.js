@@ -59,10 +59,10 @@ class BlockchainService {
         );
         this.contractABI = contractArtifact.abi;
         this.contractBytecode = contractArtifact.bytecode;
-        console.log("✅ Loaded contract ABI from artifacts");
+        console.log("Contract ABI loaded successfully from artifacts");
       } else {
         console.warn(
-          "⚠️ Contract artifacts not found. Please run 'npm run compile' first."
+          "Contract artifacts not found. Please run 'npm run compile' first."
         );
         throw new Error(
           "Contract artifacts not found. Please compile contracts first."
@@ -73,7 +73,7 @@ class BlockchainService {
       this.contractAddress = process.env.CERTIFICATE_CONTRACT_ADDRESS;
 
       if (!this.contractAddress) {
-        console.warn("⚠️ Contract address not found in environment variables.");
+        console.warn("Contract address not found in environment variables.");
         console.warn(
           "Please set CERTIFICATE_CONTRACT_ADDRESS in your .env file"
         );
@@ -90,10 +90,10 @@ class BlockchainService {
       );
 
       console.log(
-        `✅ Contract initialized at address: ${this.contractAddress}`
+        `Contract initialized successfully at address: ${this.contractAddress}`
       );
     } catch (error) {
-      console.error("❌ Error loading contract:", error.message);
+      console.error("Error loading contract:", error.message);
       this.contract = null;
     }
   }

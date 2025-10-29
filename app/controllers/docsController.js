@@ -56,171 +56,24 @@ class DocsController {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VAULT Protocol API Documentation</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link rel="icon" type="image/svg+xml" href="/assets/images/vaultLogo.ico" />
+    <link rel="alternate icon" type="image/svg+xml" href="/assets/images/vaultLogo.png" />
+    <link rel="apple-touch-icon" href="/assets/images/vaultLogo.png" />
+    <link rel="shortcut icon" href="/assets/images/vaultLogo.png" />
+    <link rel="stylesheet" href="/css/tailwind.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-      /* OKLCH Color System from Next.js project - Light Theme */
-      :root {
-        --background: oklch(1 0 0);
-        --foreground: oklch(0.145 0 0);
-        --card: oklch(1 0 0);
-        --card-foreground: oklch(0.145 0 0);
-        --popover: oklch(1 0 0);
-        --popover-foreground: oklch(0.145 0 0);
-        --primary: oklch(0.205 0 0);
-        --primary-foreground: oklch(0.985 0 0);
-        --secondary: oklch(0.97 0 0);
-        --secondary-foreground: oklch(0.205 0 0);
-        --muted: oklch(0.97 0 0);
-        --muted-foreground: oklch(0.556 0 0);
-        --accent: oklch(0.97 0 0);
-        --accent-foreground: oklch(0.205 0 0);
-        --destructive: oklch(0.577 0.245 27.325);
-        --destructive-foreground: oklch(0.577 0.245 27.325);
-        --border: oklch(0.922 0 0);
-        --input: oklch(0.922 0 0);
-        --ring: oklch(0.708 0 0);
-        --radius: 0.625rem;
-      }
-
-      /* Base styles */
-      * {
-        border-color: hsl(var(--border));
-        outline-color: hsl(var(--ring) / 0.5);
-      }
-
-      body {
-        background-color: hsl(var(--background));
-        color: hsl(var(--foreground));
-        font-family: 'Geist', 'Geist Fallback', system-ui, sans-serif;
-        font-feature-settings: 'rlig' 1, 'calt' 1;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-      }
-
-      /* Gradient text */
-      .gradient-text {
-        background: linear-gradient(135deg, #2563eb, #7c3aed);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-
-      /* Method badges */
-      .method-badge {
-        display: inline-flex;
-        align-items: center;
-        border-radius: calc(var(--radius) - 2px);
-        border: 1px solid transparent;
-        padding: 0.375rem 0.75rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        line-height: 1;
-        font-family: 'Geist Mono', 'Geist Mono Fallback', 'JetBrains Mono', 'Consolas', monospace;
-        text-transform: uppercase;
-        letter-spacing: 0.025em;
-        white-space: nowrap;
-      }
-
-      .method-get { 
-        background: rgb(16 185 129 / 0.1);
-        color: rgb(5 150 105);
-        border-color: rgb(16 185 129 / 0.2);
-      }
-      .method-post { 
-        background: rgb(59 130 246 / 0.1);
-        color: rgb(37 99 235);
-        border-color: rgb(59 130 246 / 0.2);
-      }
-      .method-put { 
-        background: rgb(245 158 11 / 0.1);
-        color: rgb(180 83 9);
-        border-color: rgb(245 158 11 / 0.2);
-      }
-      .method-delete { 
-        background: rgb(239 68 68 / 0.1);
-        color: rgb(220 38 38);
-        border-color: rgb(239 68 68 / 0.2);
-      }
-
-      /* Status codes */
-      .status-success { 
-        background: rgb(16 185 129 / 0.1);
-        color: rgb(5 150 105);
-        border-color: rgb(16 185 129 / 0.2);
-      }
-      .status-error { 
-        background: rgb(239 68 68 / 0.1);
-        color: rgb(220 38 38);
-        border-color: rgb(239 68 68 / 0.2);
-      }
-
-      /* Copy button */
-      .copy-btn {
-        position: absolute;
-        top: 0.75rem;
-        right: 0.75rem;
-        padding: 0.5rem;
-        border-radius: calc(var(--radius) - 2px);
-        background: rgb(51 65 85);
-        color: rgb(203 213 225);
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s;
-        opacity: 0;
-      }
-
-      .copy-btn:hover {
-        background: rgb(71 85 105);
-        color: white;
-      }
-
-      .code-container:hover .copy-btn {
-        opacity: 1;
-      }
-
-      /* Endpoint interactions */
-      .endpoint-header {
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-
-      .endpoint-header:hover {
-        background: hsl(var(--accent));
-      }
-
-      .chevron {
-        transition: transform 0.2s;
-      }
-
-      .chevron.open {
-        transform: rotate(180deg);
-      }
-
-      /* Animations */
-      .animate-fade-in {
-        animation: fadeIn 0.5s ease-out;
-      }
-
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-    </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
     <!-- Header -->
     <div class="border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                    </svg>
+                <div class="w-10 h-10 flex items-center justify-center shadow-lg">
+                    <img src="/assets/images/logo.svg" alt="VAULT Protocol" class="w-10 h-10" />
                 </div>
-                <h1 class="text-xl font-bold gradient-text">
+                <h1 class="text-xl font-bold">
                     VAULT Protocol
                 </h1>
             </div>
