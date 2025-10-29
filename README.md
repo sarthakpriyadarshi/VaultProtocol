@@ -10,7 +10,7 @@
 [![IPFS](https://img.shields.io/badge/IPFS-v0.38+-orange.svg)](https://ipfs.io/)
 [![License](https://img.shields.io/badge/License-MIT-black.svg)](LICENSE)
 
-[Documentation](#-documentation) • [Quick Start](#-quick-start) • [API Reference](#-api-documentation) • [Architecture](#-architecture)
+[Documentation](#api-documentation) • [Quick Start](#quick-start) • [API Reference](#api-documentation) • [Architecture](#architecture)
 
 </div>
 
