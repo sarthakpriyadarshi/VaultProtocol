@@ -117,8 +117,13 @@ npm run build:css
 # Terminal 1: Start IPFS
 ipfs daemon
 
-# Terminal 2: Start Quorum Network
-npm run setup-quorum && npm run start-quorum
+# Terminal 2: Generate and Start Quorum Network (in WSL2/Ubuntu on Windows)
+git clone https://github.com/Consensys/quorum-dev-quickstart.git
+cd quorum-dev-quickstart
+npx quorum-dev-quickstart
+cd quorum-test-network && ./run.sh  # Or: docker compose up -d
+# On Windows: Must use WSL2 (Ubuntu terminal), not Command Prompt/PowerShell
+# IMPORTANT: npx quorum-dev-quickstart must be run from inside quorum-dev-quickstart directory
 
 # Terminal 3: Deploy contracts
 npm run compile && npm run deploy
@@ -141,42 +146,149 @@ npm run dev:encrypted
 
 ### Prerequisites
 
-- Docker >= 20.0.0
-- Docker Compose >= 2.0.0
+- **Linux**: Docker >= 20.0.0 and Docker Compose v2
+  - Install Docker Compose v2: `sudo apt install docker-compose-v2` (if not already installed)
+- **Windows**: 
+  - **WSL2 (Windows Subsystem for Linux) is REQUIRED**
+  - Install Ubuntu from the Microsoft Store
+  - Docker Desktop for Windows (or docker-engine within WSL2)
+  - Docker Compose v2 included with Docker Desktop, or install in WSL2: `sudo apt install docker-compose-v2`
+- **Mac**: Docker Desktop >= 20.0.0 (includes Docker Compose v2)
+
+> **⚠️ Important for Windows Users**: This setup **requires WSL2 with Ubuntu**. You cannot run the Quorum setup directly on Windows Command Prompt or PowerShell. You must use WSL2 (Ubuntu) terminal. Install Ubuntu from the Microsoft Store if you haven't already.
 
 ### Step-by-Step Docker Setup
 
-#### 1. Start Quorum Test Network
+#### 1. Generate and Start Quorum Test Network
 
-First, you need to start the Quorum blockchain network before deploying the Vault Protocol container:
+First, you need to generate and start the Quorum blockchain network before deploying the Vault Protocol container.
+
+> **Reference**: This setup uses the [Quorum Developer Quickstart](https://github.com/Consensys/quorum-dev-quickstart) utility by ConsenSys to generate the local Quorum test network.
+
+**Prerequisites Check:**
+
+- **Linux/WSL2 (Ubuntu)**: You may need to install Docker Compose v2:
+  ```bash
+  sudo apt install docker-compose-v2
+  ```
+
+- **Windows Users**: 
+  - Ensure WSL2 is installed and Ubuntu is set up
+  - Open **Ubuntu** terminal (not Windows Command Prompt or PowerShell)
+  - All commands below must be run in the Ubuntu terminal
+
+**Generate Quorum Network Configuration:**
+
+> **Windows Users**: Run these commands in **WSL2 (Ubuntu terminal)**, not Windows Command Prompt/PowerShell.
+
+> **⚠️ Important**: The `npx quorum-dev-quickstart` command **requires** you to be inside the `quorum-dev-quickstart` repository directory. You must clone the repository first before running the command.
+
+**Step 1: Clone the Quorum Developer Quickstart Repository**
 
 ```bash
-# Navigate to the quorum-test-network directory
-cd quorum-test-network
+# Clone the repository
+git clone https://github.com/Consensys/quorum-dev-quickstart.git
+cd quorum-dev-quickstart
+```
 
-# Start the Quorum network using docker-compose
-docker-compose up -d
+**Step 2: Run the Quickstart Utility**
+
+Now that you're inside the repository, run the quickstart utility:
+
+```bash
+# Run the Quorum Developer Quickstart utility
+npx quorum-dev-quickstart
+```
+
+You'll be prompted with several questions. **Select the following options:**
+
+1. **Which Ethereum client would you like to run?**
+   - Choose: **1. Hyperledger Besu** (press Enter for default)
+
+2. **Do you wish to enable support for private transactions?**
+   - Choose: **Y** (press Enter for default Yes)
+
+3. **Do you wish to enable support for logging with Loki, Splunk or ELK?**
+   - Choose: **1. Loki** (press Enter for default)
+
+4. **Do you wish to enable support for monitoring your network with Chainlens?**
+   - Choose: **N** (press Enter for default No)
+
+5. **Do you wish to enable support for monitoring your network with Blockscout?**
+   - Choose: **y** (type 'y' then press Enter - this enables Blockscout)
+
+6. **Where should we create the config files for this network?**
+   - Choose: **./quorum-test-network** (press Enter for default)
+
+**Alternative: Use CLI flags to skip prompts:**
+
+If you prefer to skip the interactive prompts and use the same configuration as above:
+
+```bash
+npx quorum-dev-quickstart --clientType besu --outputPath ./quorum-test-network --monitoring default --privacy true
+```
+
+> **Note**: The CLI flags above will set the defaults, but to enable Blockscout, you may need to use the interactive prompts or check the generated docker-compose.yml after generation.
+
+**Step 3: Navigate to Generated Network Directory**
+
+After the network configuration is generated, navigate to the output directory (typically `quorum-test-network`):
+```bash
+cd quorum-test-network
+```
+
+**Start the Quorum Network:**
+
+After navigating to the generated network directory (from Step 3 above), start the network:
+
+```bash
+# Option 1: Use the run script (works in WSL2/Ubuntu and Linux)
+./run.sh
+# On Linux/WSL2, you may need to use sudo:
+sudo ./run.sh
+
+# Option 2: Use Docker Compose directly (alternative method)
+docker compose up -d
 
 # Verify the network is running
-docker-compose ps
+docker compose ps
 ```
 
-**Important**: Wait for the Quorum network to be fully operational before proceeding to the next step. The network typically takes 1-2 minutes to start completely. You can check the logs with:
+> **⚠️ Windows Users**: 
+> - **You MUST use WSL2 (Ubuntu terminal)** to run these commands
+> - Do NOT use Windows Command Prompt or PowerShell
+> - Open Ubuntu from the Windows Start menu and run all commands there
+> - The `run.sh` script will create containers containing multiple images
+> - Both `./run.sh` and `docker compose up -d` work in WSL2/Ubuntu and native Linux systems
+
+**Check the Network Name:**
+
+After starting the network, verify the Docker network name:
 
 ```bash
-docker-compose logs -f
+docker network ls | grep quorum
 ```
+
+The network name will typically be `quorum-dev-quickstart` or `quorum-test-network` depending on your docker-compose.yml configuration. Use this exact name when connecting the Vault Protocol container.
+
+**Important**: 
+- Wait for the Quorum network to be fully operational before proceeding to the next step. The network typically takes 1-2 minutes to start completely
+- Check the logs with: `docker compose logs -f` or `./logs.sh`
+- Verify `rpcnode` is healthy: `docker ps | grep rpcnode`
 
 #### 2. Build Vault Protocol Docker Image
 
-Once the Quorum network is running, build the Vault Protocol Docker image:
+Once the Quorum network is running and the `rpcnode` service is healthy, build the Vault Protocol Docker image:
 
 ```bash
-# Return to the project root directory
+# Return to the project root directory (if you're in quorum-test-network)
 cd ..
 
 # Build the Docker image
 docker build -t vault-protocol .
+
+# Or build and tag for Docker Hub
+docker build -t sarthakpriyadarshi/vault-protocol:latest .
 ```
 
 #### 3. Run Vault Protocol Container
@@ -184,15 +296,38 @@ docker build -t vault-protocol .
 Start the Vault Protocol container with proper network configuration:
 
 ```bash
-# Run the container connected to the Quorum network
+# First, check your Quorum network name
+docker network ls | grep quorum
+
+# Then run with the correct network name (replace <network-name> with your actual network name)
 docker run -d \
   --name vault-protocol \
   -p 3001:3001 \
-  --network quorum-dev-quickstart \
+  --network <network-name> \
   -e QUORUM_RPC_URL=http://rpcnode:8545 \
   -e IPFS_API_URL=http://host.docker.internal:5001 \
   -e IPFS_GATEWAY_URL=http://host.docker.internal:8080 \
   vault-protocol
+
+# Or use the Docker Hub image
+docker run -d \
+  --name vault-protocol \
+  -p 3001:3001 \
+  --network <network-name> \
+  -e QUORUM_RPC_URL=http://rpcnode:8545 \
+  -e IPFS_API_URL=http://host.docker.internal:5001 \
+  -e IPFS_GATEWAY_URL=http://host.docker.internal:8080 \
+  sarthakpriyadarshi/vault-protocol:latest
+
+# Example with network name 'quorum-test-network':
+docker run -d \
+  --name vault-protocol \
+  -p 3001:3001 \
+  --network quorum-test-network \
+  -e QUORUM_RPC_URL=http://rpcnode:8545 \
+  -e IPFS_API_URL=http://host.docker.internal:5001 \
+  -e IPFS_GATEWAY_URL=http://host.docker.internal:8080 \
+  sarthakpriyadarshi/vault-protocol:latest
 
 # View container logs
 docker logs -f vault-protocol
@@ -200,7 +335,7 @@ docker logs -f vault-protocol
 
 **Important Notes**:
 
-1. **Network Configuration**: The container must be connected to the `quorum-dev-quickstart` network to communicate with the Quorum blockchain nodes. This is done using `--network quorum-dev-quickstart`.
+1. **Network Configuration**: The container must be connected to the same Docker network as your Quorum blockchain nodes (typically `quorum-dev-quickstart` or `quorum-test-network`). Check your network name with `docker network ls | grep quorum` and use that name with `--network <network-name>`.
 
 2. **First Startup Behavior**:
 
@@ -236,7 +371,7 @@ docker logs vault-protocol
 
 - **Port**: 3001 (exposed and mapped)
 - **Base Image**: `node:22-alpine`
-- **Network**: Connected to `quorum-dev-quickstart` Docker network
+- **Network**: Connected to the Quorum Docker network (check with `docker network ls | grep quorum`)
 - **Auto-Deployment**: Contracts deploy automatically on first container startup
 - **Failure Behavior**: Container exits with error code 1 if deployment fails (prevents running with undeployed contracts)
 - **Encryption Key**: Randomly generated 32-byte hex key created on first startup and saved to `.env`
@@ -251,7 +386,9 @@ docker rm vault-protocol
 
 # Stop Quorum network
 cd quorum-test-network
-docker-compose down
+docker compose down
+# Or use the stop script:
+./stop.sh
 ```
 
 ### Docker Environment Variables
@@ -259,10 +396,11 @@ docker-compose down
 You can override default configuration using environment variables:
 
 ```bash
+# Replace <network-name> with your actual Quorum network name
 docker run -d \
   --name vault-protocol \
   -p 3001:3001 \
-  --network quorum-dev-quickstart \
+  --network <network-name> \
   -e PORT=3001 \
   -e QUORUM_RPC_URL=http://rpcnode:8545 \
   -e IPFS_API_URL=http://host.docker.internal:5001 \
@@ -274,7 +412,7 @@ docker run -d \
 **Environment Variables**:
 
 - `PORT`: Server port (default: 3001)
-- `QUORUM_RPC_URL`: Quorum RPC endpoint (default: `http://rpcnode:8545` when on quorum-dev-quickstart network)
+- `QUORUM_RPC_URL`: Quorum RPC endpoint (default: `http://rpcnode:8545` when on the same Docker network as Quorum nodes)
 - `IPFS_API_URL`: IPFS API endpoint (default: `http://host.docker.internal:5001` for host IPFS)
 - `IPFS_GATEWAY_URL`: IPFS Gateway endpoint (default: `http://host.docker.internal:8080` for host gateway)
 - `FILE_ENCRYPTION_KEY`: 64-character hex encryption key (optional - randomly generated if not provided)
@@ -283,11 +421,13 @@ docker run -d \
 
 **Container fails to start:**
 
-- Ensure Quorum network is running: `cd quorum-test-network && docker-compose ps`
+- Ensure Quorum network is running: `cd quorum-test-network && docker compose ps`
 - Verify `rpcnode` service is healthy: `docker ps | grep rpcnode`
 - Check container logs: `docker logs vault-protocol`
 - Verify the container is on the correct network: `docker inspect vault-protocol | grep NetworkMode`
 - Ensure IPFS daemon is running on the host: `ipfs swarm peers` or check IPFS status
+- Verify the Quorum network exists: `docker network ls | grep quorum`
+- Note: The network name may be `quorum-dev-quickstart`, `quorum-test-network`, or another name depending on your docker-compose.yml configuration
 
 **Deployment fails:**
 
