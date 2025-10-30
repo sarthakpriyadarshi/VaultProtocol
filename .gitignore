@@ -66,6 +66,9 @@ jspm_packages/
 .env.test.local
 .env.production.local
 
+# Exception: Allow quorum-test-network/.env to be tracked
+!quorum-test-network/.env
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache

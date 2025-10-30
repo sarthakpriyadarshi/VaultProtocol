@@ -38,7 +38,7 @@ class Config {
         maxFileSize: parseInt(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024, // 10MB
         allowedTypes: (
           process.env.ALLOWED_FILE_TYPES ||
-          "image/png,image/jpeg,application/pdf"
+          "image/png,image/jpeg,application/pdf,text/plain,text/html,application/json"
         ).split(","),
       },
       vault: {

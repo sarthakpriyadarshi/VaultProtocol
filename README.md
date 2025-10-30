@@ -21,6 +21,7 @@
 - [Overview](#overview)
 - [Key Features](#key-features)
 - [Quick Start](#quick-start)
+- [Docker Deployment](#docker-deployment)
 - [Project Structure](#project-structure)
 - [API Documentation](#api-documentation)
 - [Architecture](#architecture)
@@ -133,6 +134,174 @@ npm run dev:encrypted
 - **Health Check**: http://localhost:3001/api/health
 - **IPFS Gateway**: http://localhost:8080
 - **Quorum RPC**: http://localhost:8545
+
+---
+
+## Docker Deployment
+
+### Prerequisites
+
+- Docker >= 20.0.0
+- Docker Compose >= 2.0.0
+
+### Step-by-Step Docker Setup
+
+#### 1. Start Quorum Test Network
+
+First, you need to start the Quorum blockchain network before deploying the Vault Protocol container:
+
+```bash
+# Navigate to the quorum-test-network directory
+cd quorum-test-network
+
+# Start the Quorum network using docker-compose
+docker-compose up -d
+
+# Verify the network is running
+docker-compose ps
+```
+
+**Important**: Wait for the Quorum network to be fully operational before proceeding to the next step. The network typically takes 1-2 minutes to start completely. You can check the logs with:
+
+```bash
+docker-compose logs -f
+```
+
+#### 2. Build Vault Protocol Docker Image
+
+Once the Quorum network is running, build the Vault Protocol Docker image:
+
+```bash
+# Return to the project root directory
+cd ..
+
+# Build the Docker image
+docker build -t vault-protocol .
+```
+
+#### 3. Run Vault Protocol Container
+
+Start the Vault Protocol container with proper network configuration:
+
+```bash
+# Run the container connected to the Quorum network
+docker run -d \
+  --name vault-protocol \
+  -p 3001:3001 \
+  --network quorum-dev-quickstart \
+  -e QUORUM_RPC_URL=http://rpcnode:8545 \
+  -e IPFS_API_URL=http://host.docker.internal:5001 \
+  -e IPFS_GATEWAY_URL=http://host.docker.internal:8080 \
+  vault-protocol
+
+# View container logs
+docker logs -f vault-protocol
+```
+
+**Important Notes**:
+
+1. **Network Configuration**: The container must be connected to the `quorum-dev-quickstart` network to communicate with the Quorum blockchain nodes. This is done using `--network quorum-dev-quickstart`.
+
+2. **First Startup Behavior**:
+
+   - The container will automatically generate a random `FILE_ENCRYPTION_KEY` and save it to `.env` if not already present
+   - The container will automatically run `npm run deploy` on the first startup
+   - **If deployment fails, the container will exit immediately** - this ensures the application only runs with a successfully deployed contract
+   - If deployment succeeds, a `.deployed` flag file is created to prevent redeployment on subsequent restarts
+
+3. **Deployment Process**:
+
+   - Deploys the CertificateManager contract to the Quorum network
+   - Saves the contract address to the `.env` file inside the container
+   - Creates a `.deployed` flag file to track successful deployment
+
+4. **Encryption Key**: A random 32-byte hex encryption key is generated on first startup and persisted in the container's `.env` file for consistent encryption/decryption across restarts.
+
+#### 4. Verify Deployment
+
+Check if the container is running and healthy:
+
+```bash
+# Check container status
+docker ps
+
+# Check health endpoint
+curl http://localhost:3001/api/health
+
+# View container logs
+docker logs vault-protocol
+```
+
+### Docker Container Details
+
+- **Port**: 3001 (exposed and mapped)
+- **Base Image**: `node:22-alpine`
+- **Network**: Connected to `quorum-dev-quickstart` Docker network
+- **Auto-Deployment**: Contracts deploy automatically on first container startup
+- **Failure Behavior**: Container exits with error code 1 if deployment fails (prevents running with undeployed contracts)
+- **Encryption Key**: Randomly generated 32-byte hex key created on first startup and saved to `.env`
+- **IPFS Access**: Uses `host.docker.internal` to access IPFS daemon running on the host machine
+
+### Stopping Containers
+
+```bash
+# Stop Vault Protocol container
+docker stop vault-protocol
+docker rm vault-protocol
+
+# Stop Quorum network
+cd quorum-test-network
+docker-compose down
+```
+
+### Docker Environment Variables
+
+You can override default configuration using environment variables:
+
+```bash
+docker run -d \
+  --name vault-protocol \
+  -p 3001:3001 \
+  --network quorum-dev-quickstart \
+  -e PORT=3001 \
+  -e QUORUM_RPC_URL=http://rpcnode:8545 \
+  -e IPFS_API_URL=http://host.docker.internal:5001 \
+  -e IPFS_GATEWAY_URL=http://host.docker.internal:8080 \
+  -e FILE_ENCRYPTION_KEY=your_custom_key_here \
+  vault-protocol
+```
+
+**Environment Variables**:
+
+- `PORT`: Server port (default: 3001)
+- `QUORUM_RPC_URL`: Quorum RPC endpoint (default: `http://rpcnode:8545` when on quorum-dev-quickstart network)
+- `IPFS_API_URL`: IPFS API endpoint (default: `http://host.docker.internal:5001` for host IPFS)
+- `IPFS_GATEWAY_URL`: IPFS Gateway endpoint (default: `http://host.docker.internal:8080` for host gateway)
+- `FILE_ENCRYPTION_KEY`: 64-character hex encryption key (optional - randomly generated if not provided)
+
+### Troubleshooting
+
+**Container fails to start:**
+
+- Ensure Quorum network is running: `cd quorum-test-network && docker-compose ps`
+- Verify `rpcnode` service is healthy: `docker ps | grep rpcnode`
+- Check container logs: `docker logs vault-protocol`
+- Verify the container is on the correct network: `docker inspect vault-protocol | grep NetworkMode`
+- Ensure IPFS daemon is running on the host: `ipfs swarm peers` or check IPFS status
+
+**Deployment fails:**
+
+- **The container will exit immediately if deployment fails** - this is intentional to prevent running without a deployed contract
+- Check logs for deployment errors: `docker logs vault-protocol`
+- Ensure Quorum network is accessible and fully synced
+- Verify the `rpcnode` service is running: `docker ps | grep rpcnode`
+- If container exits, check exit code: `docker inspect vault-protocol | grep ExitCode`
+- To retry deployment, remove the container and run again: `docker rm vault-protocol && docker run ...`
+
+**Port conflicts:**
+
+- If port 3001 is in use, change the port mapping: `-p 3002:3001`
+- Update the `PORT` environment variable accordingly
 
 ---
 
